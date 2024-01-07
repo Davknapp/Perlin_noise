@@ -32,7 +32,7 @@ n_dim_random_gradient(const std::vector<int> &point, const std::vector<int> &fac
 
     // compute the product of all sin(angle)
     double remaining_sin = 1.0;
-    std::for_each(gradient.begin(), gradient.end(), [&](double angle){ remaining_sin += sin(angle);});
+    std::for_each(gradient.begin(), gradient.end(), [&](double angle){ remaining_sin *= sin(angle);});
 
 
     double last_angle = gradient.back();
@@ -63,7 +63,9 @@ double dotprod_grad(const std::vector<int> &grid_point, std::vector<double> &gra
 {
     
     n_dim_random_gradient(grid_point, factor, offset, mod, gradient);
+
     std::vector<double> dist(grid_point.size());
+
     /*element-wise substraction */
     std::transform(point.begin(), point.end(), grid_point.begin(), dist.begin(), std::minus<double>());
     /*Dot product*/
@@ -123,10 +125,11 @@ double perlin(const std::vector<double> point, const std::vector<int> &factor, c
 
     std::vector<double> interpolated(2<<(point.size() - 1));
     std::vector<double > gradient(point.size());
-    for(int icorner = 0; icorner < total_num_corners; ++icorner){
-
-        corner[icorner] = dotprod_grad(next_point, gradient, point, factor, offset, mod);
-        compute_next_point(point0, icorner, next_point);
+    for(int icorner = 0; icorner < total_num_corners>> 2; ++icorner){
+        corner[2*icorner] = dotprod_grad(next_point, gradient, point, factor, offset, mod);
+        compute_next_point(point0, 2*icorner+1, next_point);
+        corner[2*icorner + 1] = dotprod_grad(next_point, gradient, point, factor, offset, mod);
+        compute_next_point(point0, 2*icorner+2, next_point);
     }
 
     /* We interpolate the corners down to an n-1 dimenstional hypercube in each iteration until we get a single point*/
@@ -168,7 +171,7 @@ create_perlin_plane(const double size_x, const double size_y, const int res_x, c
 }
 
 int main(){
-    std::vector<double> point4D = {0.7, 0.5, 2.2, 0.8};
+    std::vector<double> point4D = {0.7, 0.5, 2.2, 1.8};
     /* Parameters for the pseudo-number generator */
     const std::vector<int> factor = {123451432, 67334502, 321568, 23456};
     const std::vector<int> offset = {123465, 34569, 1235498, 748321984};
