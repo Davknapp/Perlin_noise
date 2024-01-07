@@ -93,7 +93,7 @@ double interpolate1D(const double point0, const double point1, const double betw
  * next     The next point to use
  */
 void 
-compute_next_point(const std::vector<int> point, int index, std::vector<int> next)
+compute_next_point(const std::vector<int> point, int index, std::vector<int> &next)
 {
     for(int idim = 0; idim < point.size(); ++idim){
         next[idim] = point[idim] + index%2;
@@ -110,7 +110,7 @@ double perlin(const std::vector<double> point, const std::vector<int> &factor, c
         point0[i] = static_cast<int>(point[i]);
     }
 
-    std::vector<int> next_point = point0;
+    std::vector<int> next_point(point0);
 
     /* Compute the distances to the grid corner (point0)*/
     std::vector<double> dist(point.size());
@@ -124,6 +124,7 @@ double perlin(const std::vector<double> point, const std::vector<int> &factor, c
     std::vector<double> interpolated(2<<(point.size() - 1));
     std::vector<double > gradient(point.size());
     for(int icorner = 0; icorner < total_num_corners; ++icorner){
+
         corner[icorner] = dotprod_grad(next_point, gradient, point, factor, offset, mod);
         compute_next_point(point0, icorner, next_point);
     }
@@ -167,7 +168,7 @@ create_perlin_plane(const double size_x, const double size_y, const int res_x, c
 }
 
 int main(){
-    std::vector<double> point4D = {0.7, 2.2, 0.12, 0.3};
+    std::vector<double> point4D = {0.7, 0.5, 2.2, 0.8};
     /* Parameters for the pseudo-number generator */
     const std::vector<int> factor = {123451432, 67334502, 321568, 23456};
     const std::vector<int> offset = {123465, 34569, 1235498, 748321984};
@@ -189,9 +190,6 @@ int main(){
         std::cout<<std::endl;
     }
     std::cout<< "Single 4D perlin noise point: "<< perlin(point4D, factor, offset, mod)<<std::endl;
-    std::cout<< interpolate1D(2.0, 1.0, 0.0) <<std::endl;
-    std::cout<< interpolate1D(0.0, 1.0, 0.5) <<std::endl;
-    std::cout<< interpolate1D(0.0, 1.0, 1.0) <<std::endl;
     return 0;
 }
 
