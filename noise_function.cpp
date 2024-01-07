@@ -27,8 +27,8 @@ n_dim_random_gradient(const std::vector<int> &point, const std::vector<int> &fac
     std::transform(tmp.begin(), tmp.end(), mod.begin(), tmp.begin(), [](auto in, auto&& mod){return in%mod;});
   
     /* We want to describe a vector in an n-dimensional sphere. Therefor we need n-1 angles */
-    std::transform(tmp.begin(), tmp.end() - 1, gradient.begin(), [](auto in){return fmod(in / (RAND_MAX / (PI)), PI );});
-    gradient.back() = fmod(tmp.back()-2 / (RAND_MAX / (2*PI)), 2*PI ); 
+    std::transform(tmp.begin(), tmp.end(), mod.begin(), gradient.begin(), [](auto ran, auto&& max_ran){ return fmod(ran / (max_ran / PI), PI);});
+    gradient.back() = fmod(tmp.back()-2 / (mod.back() / (2*PI)), 2*PI ); 
 
     // compute the product of all sin(angle)
     double remaining_sin = 1.0;
